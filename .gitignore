@@ -1,0 +1,17 @@
+# Dependency folders (very large, should never be on GitHub)
+node_modules/
+
+# Google Cloud Credentials (SENSITIVE - PROTECT THESE)
+*.json
+!package.json
+!package-lock.json
+
+# Environment variables
+.env
+
+# Logs
+npm-debug.log*
+
+# Operating System files
+.DS_Store
+Thumbs.db
