@@ -4,59 +4,346 @@
 <head>
 	<meta charset="UTF-8">
 	<title>To Do List</title>
-	<link rel="stylesheet" href="./style.css">
-
+	<link rel="stylesheet" href="style.css">
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+		integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+		crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 
 <body>
-	<!-- partial:index.partial.html -->
-	<html>
+	<div class="outer-box">
 
-	<head>
-		<title>To Do</title>
-		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-	</head>
+		<div class="layout">
+			<!-- SIDEBAR -->
+			<div class="sidebar" id="sidebar">
 
-	<body>
-		<div id="container">
-			<h1>To-Do List<i class="fa fa-plus"></i></h1>
-			<div class="slide">
-				<input type="text" placeholder="New Item">
+				<div class="menu-header">
+					<i class="fa fa-bars" id="hamburger"></i>
+					<span>Menu</span>
+				</div>
+
+				<input class="menu-search" placeholder="Search">
+
+				<ul class="menu-links">
+					<li id="todoBtn" class="active">Add list</li>
+					<li id="stickyBtn">Sticky Wall</li>
+					<li>Calendar</li>
+				</ul>
 			</div>
 
+			<!-- MAIN CONTENT -->
+			<div class="content">
 
-			<ul>
-				<li><span><i class="fa fa-trash-o"></i></span>Add a To-Do</li>
-				<li><span><i class="fa fa-trash-o"></i></span>Delete a To-Do</li>
-				<li><span><i class="fa fa-trash-o"></i></span>Check off a To-Do</li>
-			</ul>
+				<!-- TODO PAGE -->
+				<div id="todoPage">
 
-			<button id="exportBtn" class="export-button">
-				<i class="fa fa-table"></i> Export to Google Sheets
-			</button>
-			<a href="https://docs.google.com/spreadsheets/d/1bnPLt_4a4A9-GzO4MA8iREd_ay3UdLIBkr4a8wPwOXE/edit?gid=0#gid=0" target="_blank">Google Sheets</a>
+					<div class="top-row">
+
+						<h1>TO DO:</h1>
+
+						<div class="search-box">
+							<div class="search-icon">
+								<i class="fa fa-search"></i>
+							</div>
+							<input type="text" id="searchTask" placeholder="Search task...">
+						</div>
+
+					</div>
+
+					<!-- TO DO CONTAINER -->
+					<div id="container">
+
+						<ul id="taskList"></ul>
+
+						<button id="exportBtn" class="sheets-btn">
+							<i class="fa-brands fa-google"></i>
+							Export in Google Sheets
+						</button>
+
+						<a href="https://docs.google.com/spreadsheets/d/1bnPLt_4a4A9-GzO4MA8iREd_ay3UdLIBkr4a8wPwOXE/edit?gid=0#gid=0"
+							target="_blank" class="open-g">Open Google Sheets</a>
+
+						<button id="addNoteBtn" class="sheets-btnS">
+							<i class="fa-solid fa-plus"></i>
+						</button>
+
+					</div>
+
+				</div>
+
+				<!-- STICKY WALL PAGE -->
+				<div id="stickyPage">
+
+					<h1 class="sticky-title">Sticky Wall</h1>
+
+					<div class="sticky-grid" id="stickyGrid">
+
+						<button class="add-note">+</button>
+
+					</div>
+
+				<!-- INLINE STICKY EDITOR -->
+					<div id="inlineStickyEditor" style="display:none;" class="sticky-editor-box">
+							<input id="editorTitle" class="sticky-title" placeholder="Title" />
+							<textarea id="editorContent" class="sticky-content" placeholder="Note something down"></textarea>
+							<div class="sticky-editor-actions">
+								<button id="editorCancel" class="btn cancel">Cancel</button>
+								<button id="editorSave" class="btn save">Save</button>
+							</div>
+					</div>
+
+				</div>
+
+				
+
+			</div>
+			
+		</div>
+
+		<div id="addModal" class="modal">
+
+			<div class="modal-wrapper">
+
+				<div class="modal-content">
+
+					<div class="modal-header">
+						<i class="fa-solid fa-note-sticky"></i>
+						<h2>Add a Task</h2>
+					</div>
+
+					<input type="text" id="noteInput" placeholder="Type here...">
+
+					<div class="modal-buttons">
+						<button id="addTaskBtn">Add</button>
+						<button id="cancelAdd">Cancel</button>
+					</div>
+
+				</div>
+
+			</div>
 
 		</div>
 
-		<script type="text/javascript" src="assets/js/script.js"></script>
-	</body>
+		<div id="editModal" class="modal">
 
-	</html>
-	<!-- partial -->
-	<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
-	<script src="./script.js"></script>
+			<div class="modal-wrapper">
+
+				<div class="modal-content">
+
+					<div class="modal-header">
+						<i class="fa-solid fa-pen-to-square"></i>
+						<h2>Edit Your Task</h2>
+					</div>
+
+					<input type="text" id="editInput" placeholder="Update your task...">
+
+					<div class="modal-buttons">
+						<button id="cancelEdit">Cancel</button>
+						<button id="saveEdit">Update</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<script>
+			document.addEventListener("DOMContentLoaded", () => {
+
+				const stickyGrid = $("#stickyGrid");
+				const stickyEditor = $("#inlineStickyEditor");
+				const stickyTitle = $("#editorTitle");
+				const stickyContent = $("#editorContent");
+				const saveBtn = $("#editorSave");
+				const cancelBtn = $("#editorCancel");
+
+				let currentEditingNote = null;
+
+					// OPEN EDITOR
+					function openStickyEditor(isNew = true, content = "", noteElement = null) {
+						stickyEditor.style.display = "block";
+						currentEditingNote = noteElement;
+
+						if (isNew) {
+							stickyTitle.style.display = "block"; 
+							stickyTitle.value = "";
+						} else {
+							stickyTitle.style.display = "none"; 
+						}
+
+						stickyContent.value = content;
+					}
+
+					// ADD NOTE BUTTON
+					addNoteBtn.addEventListener("click", () => {
+						openStickyEditor(true); 
+					});
+
+					// CANCEL EDITOR
+					cancelBtn.addEventListener("click", () => {
+						stickyEditor.style.display = "none";
+						currentEditingNote = null;
+					});
+
+					// SAVE NOTE
+					saveBtn.addEventListener("click", () => {
+
+						const title = stickyTitle.value.trim();
+						const content = stickyContent.value.trim();
+
+						// Only check title if visible (new note)
+						if (stickyTitle.style.display !== "none" && title === "") {
+							alert("Please enter a title");
+							return;
+						}
+
+						if (content === "") {
+							alert("Please enter note content");
+							return;
+						}
+
+						if (currentEditingNote) {
+							// EDIT NOTE: update content + snippet
+							currentEditingNote.querySelector(".note-content").textContent = content;
+							const snippetElement = currentEditingNote.querySelector(".note-snippet");
+							if (snippetElement) {
+								snippetElement.textContent = truncateText(content);
+							} else {
+								// if snippet div doesn't exist (old notes), create it
+								const snippetDiv = document.createElement("div");
+								snippetDiv.classList.add("note-snippet");
+								snippetDiv.textContent = truncateText(content);
+								currentEditingNote.insertBefore(snippetDiv, currentEditingNote.querySelector(".edit-note-btn"));
+							}
+						}
+
+							stickyGrid.insertBefore(note, addNoteBtn);
+
+							// EDIT BUTTON
+							note.querySelector(".edit-note-btn").addEventListener("click", () => {
+								const existingContent = note.querySelector(".note-content").textContent;
+								openStickyEditor(false, existingContent, note); // edit, no title
+							});
+						}
+
+						stickyEditor.style.display = "none";
+						currentEditingNote = null;
+
+					});
+
+				});
+		</script>
+
+
 
 	<script>
+		const hamburger = document.getElementById("hamburger");
+		const sidebar = document.getElementById("sidebar");
+
+		const todoPage = document.getElementById("todoPage");
+		const stickyPage = document.getElementById("stickyPage");
+
+		const stickyBtn = document.getElementById("stickyBtn");
+		const todoBtn = document.getElementById("todoBtn");
+
+		// Toggle sidebar visibility
+		hamburger.onclick = () => {
+
+				sidebar.classList.toggle("collapsed");
+
+			};
+
+		// Switch pages
+		stickyBtn.onclick = () => {
+			todoPage.style.display = "none";
+			stickyPage.style.display = "block";
+
+			// Update active class
+			todoBtn.classList.remove("active");
+			stickyBtn.classList.add("active");
+		};
+
+		todoBtn.onclick = () => {
+			stickyPage.style.display = "none";
+			todoPage.style.display = "block";
+
+			// Update active class
+			stickyBtn.classList.remove("active");
+			todoBtn.classList.add("active");
+		};
+	</script>
+
+
+
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="script.js"></script>
+
+
+	<script>
+
+		function makeModalDraggable(modalSelector) {
+				const modal = $(modalSelector);
+				const header = modal.find(".modal-header");
+				let isDragging = false;
+				let offsetX = 0;
+				let offsetY = 0;
+
+				header.css("cursor", "move"); 
+
+				header.on("mousedown", function (e) {
+					isDragging = true;
+					const modalOffset = modal.offset();
+					offsetX = e.pageX - modalOffset.left;
+					offsetY = e.pageY - modalOffset.top;
+					e.preventDefault();
+				});
+
+				$(document).on("mousemove", function (e) {
+					if (isDragging) {
+						modal.css({
+							top: e.pageY - offsetY,
+							left: e.pageX - offsetX,
+							position: "absolute"
+						});
+					}
+				});
+
+				$(document).on("mouseup", function () {
+					isDragging = false;
+				});
+			}
+
+			// Apply draggable to both modals
+			makeModalDraggable("#addModal");
+			makeModalDraggable("#editModal");
+			
 		document.getElementById('exportBtn').addEventListener('click', async () => {
 			const btn = document.getElementById('exportBtn');
 			btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Exporting...';
 			btn.disabled = true;
 
 			try {
+				// Collect all tasks from <ul>
+				const tasks = [];
+				$("#taskList li span").each(function () {
+					tasks.push($(this).text());
+				});
+
+				if (tasks.length === 0) {
+					alert('No tasks to export!');
+					btn.innerHTML = '<i class="fa-brands fa-google"></i> Export in Google Sheets';
+					btn.disabled = false;
+					return;
+				}
+
+				// Send tasks to your server
 				const response = await fetch('http://localhost:3000/export-tasks', {
 					method: 'POST',
-					headers: { 'Content-Type': 'application/json' }
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ tasks }) 
 				});
 
 				if (response.ok) {
@@ -65,15 +352,17 @@
 					const errorText = await response.text();
 					alert('Export failed: ' + errorText);
 				}
+
 			} catch (err) {
 				console.error(err);
-				alert('Could not connect to the server. Did you run "node server.js"?');
+				alert('Could not connect to the server.');
 			} finally {
-				btn.innerHTML = '<i class="fa fa-table"></i> Export to Google Sheets';
+				btn.innerHTML = '<i class="fa-brands fa-google"></i> Export in Google Sheets';
 				btn.disabled = false;
 			}
 		});
 	</script>
+
 </body>
 
 </html>
