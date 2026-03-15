@@ -1,5 +1,5 @@
 let currentTaskElement = null;
-let currentStickyNote = null;
+let currentEditingNote = null;
 
 /* -------------------------
    SAVE TASKS (LOCAL STORAGE)
@@ -15,9 +15,13 @@ function saveTasks() {
 		const text = $(this).find("span").text();
 		const completed = $(this).hasClass("completed");
 
+		const note = $(`#stickyGrid .note[data-id="${id}"]`);
+		const content = note.find(".note-content").text();
+
 		tasks.push({
 			id,
 			text,
+			content,
 			completed
 		});
 
@@ -52,7 +56,7 @@ function loadTasks() {
 
 		$("#taskList").append(todoItem);
 
-		createStickyNote(task.text, task.id, todoItem);
+		createStickyNote(task.text, task.id, todoItem, task.content);
 
 	});
 
@@ -81,7 +85,7 @@ function addTask() {
 
 	$("#taskList").append(todoItem);
 
-	createStickyNote(text, taskId, todoItem);
+	createStickyNote(text, taskId, todoItem, "");
 
 	$("#noteInput").val("");
 	$("#addModal").hide();
@@ -94,81 +98,80 @@ function addTask() {
    CREATE STICKY NOTE
 ------------------------- */
 
-function createStickyNote(text, taskId, todoElement) {
-	const stickyGrid = $("#stickyGrid");
+function createStickyNote(text, taskId, todoElement, content = "") {
+
 	const now = new Date();
 	const dateText = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
 
+	const snippet = content ? content.substring(0, 50) : "";
+
 	const note = $(`
-    <div class="note" data-id="${taskId}">
-        <div class="note-title">${text}</div>
-        <div class="note-content" style="display:none;"></div>
-        <div class="note-snippet">${text.length > 50 ? text.substring(0, 50) + "..." : text}</div>
-        <span class="note-date">${dateText}</span>
-        <button class="edit-note-btn"><i class="fa fa-pencil"></i></button>
-    </div>
-    `);
-
-	note.data("todoElement", todoElement);
-
-	// EDIT BUTTON -> OPEN EDITOR
-	note.find(".edit-note-btn").click(function (event) {
-		event.stopPropagation();
-		openInlineEditor(note);
-	});
+<div class="note" data-id="${taskId}">
+    <div class="note-title">${text}</div>
+    <div class="note-content" style="display:none;">${content}</div>
+    <div class="note-snippet">${snippet}</div>
+    <span class="note-date">${dateText}</span>
+    <button class="edit-note-btn"><i class="fa fa-pencil"></i></button>
+</div>
+`);
 
 	$("#stickyGrid .add-note").before(note);
+
 }
 
-
-let currentEditingNote = null;
+/* -------------------------
+   OPEN STICKY EDITOR
+------------------------- */
 
 function openInlineEditor(note) {
+
 	currentEditingNote = note;
 
 	const titleText = note.find(".note-title").text();
-	const contentText = note.find(".note-content").text() || "";
+	const contentText = note.find(".note-content").text();
 
 	$("#editorTitle").val(titleText);
 	$("#editorContent").val(contentText);
 
 	$("#stickyGrid").hide();
 	$("#inlineStickyEditor").show();
+
 }
 
-// Save edits
+/* -------------------------
+   SAVE STICKY EDIT
+------------------------- */
+
 $("#editorSave").click(() => {
 
 	const newTitle = $("#editorTitle").val().trim();
 	const newContent = $("#editorContent").val().trim();
 
-	if (!newTitle && !newContent) return;
+	if (!newTitle) return;
 
+	// EDIT EXISTING NOTE
 	if (currentEditingNote) {
 
-		// UPDATE EXISTING NOTE
-		currentEditingNote.find(".note-title")
-			.text(newTitle || currentEditingNote.find(".note-title").text());
-
+		currentEditingNote.find(".note-title").text(newTitle);
 		currentEditingNote.find(".note-content").text(newContent);
 
-		const snippet = newContent.replace(/\n/g, " ").substring(0, 50);
+		const snippet = newContent ? newContent.substring(0, 50) : "";
+		currentEditingNote.find(".note-snippet").text(snippet);
 
-		currentEditingNote.find(".note-snippet")
-			.text(snippet.length >= 50 ? snippet + "..." : snippet);
-
-		// Update linked TODO task
 		const taskId = currentEditingNote.data("id");
 		const todoItem = $(`#taskList li[data-id="${taskId}"]`);
-		todoItem.find("span")
-			.text(newTitle || todoItem.find("span").text());
 
-	} else {
+		todoItem.find("span").text(newTitle);
+
+	}
+
+	// CREATE NEW NOTE
+	else {
 
 		const id = "task_" + Date.now();
 		const now = new Date().toLocaleString();
 
-		// CREATE TODO TASK (so it will save)
+		// create todo item
 		const todoItem = $(`
 <li data-id="${id}">
     <div class="circle"></div>
@@ -177,97 +180,59 @@ $("#editorSave").click(() => {
         <button class="edit-btn"><i class="bi bi-pencil"></i></button>
         <button class="delete-btn"><i class="bi bi-trash3"></i></button>
     </div>
-</li>
-`);
+</li>`);
 
 		$("#taskList").append(todoItem);
 
-		// CREATE STICKY NOTE
-		const snippet = newContent.replace(/\n/g, " ").substring(0, 50);
+		// snippet
+		const snippet = newContent ? newContent.substring(0, 50) : "";
 
+		// create sticky note
 		const note = $(`
-<div class="note" data-id="${id}">
+    <div class="note" data-id="${id}">
     <div class="note-title">${newTitle}</div>
-    <div class="note-content">${newContent}</div>
-    <div class="note-snippet">${snippet.length >= 50 ? snippet + "..." : snippet}</div>
+    <div class="note-content" style="display:none;">${newContent}</div>
+    <div class="note-snippet">${snippet}</div>
     <span class="note-date">${now}</span>
     <button class="edit-note-btn"><i class="fa fa-pencil"></i></button>
-</div>
-`);
+    </div>
+    `);
 
 		$("#stickyGrid .add-note").before(note);
 
-		saveTasks();
 	}
 
-});
-
-// Cancel edits
-$("#editorCancel").click(() => {
 	$("#inlineStickyEditor").hide();
 	$("#stickyGrid").show();
 	currentEditingNote = null;
-});
-
-// Attach inline editor to sticky notes
-$(document).on("click", ".edit-note-btn", function () {
-	const note = $(this).closest(".note");
-	openInlineEditor(note);
-});
-
-/* -------------------------
-   RESTORE STICKY WALL
-------------------------- */
-
-function reloadStickyWall() {
-
-	$("#stickyGrid").html('<div class="add-note">+</div>');
-
-	const stored = localStorage.getItem("todoTasks");
-	if (!stored) return;
-
-	const tasks = JSON.parse(stored);
-
-	tasks.forEach(task => {
-
-		const todoElement = $(`#taskList li[data-id="${task.id}"]`);
-
-		createStickyNote(task.text, task.id, todoElement);
-
-	});
-
-}
-
-/* -------------------------
-   SAVE STICKY EDIT
-------------------------- */
-
-$(document).on("click", "#saveStickyEdit", function () {
-	if (!currentStickyNote) return;
-
-	const newTitle = $("#stickyTitleInput").val().trim();
-	const newContent = $("#stickyContentInput").val().trim(); 
-
-	if (!newTitle) return;
-	currentStickyNote.find("h3").text(newTitle);
-
-	const id = currentStickyNote.data("id");
-	const todo = $(`#taskList li[data-id="${id}"]`);
-	todo.find("span").text(newTitle);
-
-	$("#stickyEditorPage").hide();
-	currentStickyNote = null;
 
 	saveTasks();
+
 });
 
 /* -------------------------
    CANCEL STICKY EDIT
 ------------------------- */
 
-$(document).on("click", "#cancelStickyEdit", function () {
+$("#editorCancel").click(() => {
 
-	reloadStickyWall();
+	$("#inlineStickyEditor").hide();
+	$("#stickyGrid").show();
+
+	currentEditingNote = null;
+
+});
+
+/* -------------------------
+   EDIT NOTE BUTTON
+------------------------- */
+
+$(document).on("click", ".edit-note-btn", function (event) {
+
+	event.stopPropagation();
+
+	const note = $(this).closest(".note");
+	openInlineEditor(note);
 
 });
 
@@ -279,11 +244,7 @@ function openEditModal(element) {
 
 	currentTaskElement = element;
 
-	let text = "";
-
-	if (element.is("li")) {
-		text = element.find("span").text();
-	}
+	const text = element.find("span").text();
 
 	$("#editInput").val(text);
 	$("#editModal").css("display", "flex");
@@ -432,6 +393,10 @@ $(document).ready(function () {
 	loadTasks();
 
 });
+
+/* -------------------------
+   ADD STICKY NOTE BUTTON
+------------------------- */
 
 $(document).on("click", ".add-note", function () {
 
